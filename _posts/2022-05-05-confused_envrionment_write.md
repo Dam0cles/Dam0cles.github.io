@@ -1,3 +1,9 @@
+---
+layout: post
+title: Task Item List
+tags: [to-do list]
+---
+
 # 24/7CTF-PWN-Confused environment write
 ## 信息收集
 题目是一个PWN题，但是没有给二进制文件，只给了题目部署IP和端口。连上题目环境进行观察：
