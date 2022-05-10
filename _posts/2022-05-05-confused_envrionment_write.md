@@ -6,7 +6,9 @@ tags: [pwn]
 
 年轻人的第一次盲字符串格式化溢出
 
-## 信息收集
+![](/assets/img/247ctf/pwn/confused_environment_write/logo.png)
+
+
 
 题目是一个PWN题，但是没有给二进制文件，只给了题目部署IP和端口。连上题目环境进行观察：
 ![](/assets/img/247ctf/pwn/confused_environment_write/1.png)
