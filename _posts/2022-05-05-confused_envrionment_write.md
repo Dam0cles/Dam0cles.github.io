@@ -10,7 +10,7 @@ excerpt: 年轻人的第一次盲字符串格式化溢出
 
 ## 信息收集
 
-PWN，但是没有给二进制文件，只有题目部署IP和端口。连上题目环境进行观察：
+PWN，但是没有给二进制文件，只有程序部署IP和端口。连上程序环境进行观察：
 ![](/assets/img/247ctf/pwn/confused_environment_write/1.png)
 程序打印一些常规信息，然后请求用户输入数据。既然是PWN，尝试输入超长字符串：
 ![](/assets/img/247ctf/pwn/confused_environment_write/2.png)
@@ -106,6 +106,7 @@ PWN，但是没有给二进制文件，只有题目部署IP和端口。连上题
 
 程序第二次循环打印完"What's your name again?"后崩溃退出，说明程序崩溃于[伪代码逻辑](#pseudocode)第9行，进一步说明[0x0804a018]=some_input_func@libc。将几个常见的libc库输入函数结合printf一起放入[libc.blukat.me](https://libc.blukat.me/)进行查询，得到结果：
 ![](/assets/img/247ctf/pwn/confused_environment_write/18.png)
+<span id="method_2"></span>
 #### 方式二
 上述思路纯靠猜测。还有一种找出.got.plt中具体libc库函数是什么的方法，即获取.rela.plt、.got.plt、.dynsym与.dynstr之间的关系，它们的关系如下：
 <span id="all_rela"></span>
@@ -162,6 +163,5 @@ PWN，但是没有给二进制文件，只有题目部署IP和端口。连上题
 
 ![](/assets/img/247ctf/pwn/confused_environment_write/20.png)
 
-```
+
 热知识5: 在构造字符串格式化漏洞payload时，可以使用pwntools提供的[fmtstr_payload](https://docs.pwntools.com/en/stable/fmtstr.html)。
-```
