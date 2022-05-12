@@ -104,6 +104,32 @@ excerpt: 年轻人的第一次盲字符串格式化溢出
 程序在第二次循环打印完"What's your name again?"后崩溃退出，说明程序崩溃于伪代码逻辑第9行，进一步说明[0x0804a018]=some_input_func@libc。将几个常见的libc库输入函数结合printf一起放入[libc.blukat.me](https://libc.blukat.me/)进行查询，得到结果：
 ![](/assets/img/247ctf/pwn/confused_environment_write/18.png)
 
+上述思路纯靠猜测。还有一种找出.got.plt中具体libc库函数是什么的方法，即获取.rela.plt、.got.plt、.dynsym与.dynstr之间的关系，它们的关系如下：
+![](/assets/img/247ctf/pwn/confused_environment_write/s_7.png)
+
+.dynnamic包含此程序所有section信息，如果程序以0x08048000为基址，则.dynamic的地址很可能存储在0x080480bc。其数据结构中，d_tag表示此section类型，d_un被d_tag控制，如果时d_ptr，表示此section加载地址：
+![](/assets/img/247ctf/pwn/confused_environment_write/s_8.png)
+
+经泄露，.dynamic地址为0x08049f0c:
+
+![](/assets/img/247ctf/pwn/confused_environment_write/s_9.png)
+
+![](/assets/img/247ctf/pwn/confused_environment_write/s_10.png)
+
+已知.got.plt地址，我们还需要.rela.plt、.dynsym与.dynstr的地址。.rela.plt、.dynsym与.dynstr的d_tag为：
+
+![](/assets/img/247ctf/pwn/confused_environment_write/s_6.png)
+
+泄露出整个.dynamic的内容，找到对应的d_tag即可：
+
+![](/assets/img/247ctf/pwn/confused_environment_write/s_11.png)
+
+![](/assets/img/247ctf/pwn/confused_environment_write/s_12.png)
+
+	.dynstr address: 0x0804828c
+	.dynsym address: 0x080481cc
+	.rela.plt address: 0x0804837c
+
 ### 断定2
 程序使用libc版本为libc6-i386_2.27-3ubuntu1_amd64.so。(遗留问题3)
 
