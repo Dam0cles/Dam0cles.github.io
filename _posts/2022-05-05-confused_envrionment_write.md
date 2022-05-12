@@ -65,7 +65,9 @@ excerpt: 年轻人的第一次盲字符串格式化溢出
 	3) 程序使用的libc版本未明;
 
 ### 遗留问题解决方案
-我们泄露出了.got.plt的部分libc库函数，现在需要推测出它们具体是什么函数。由于题目没有提供二进制可执行文件，所以需要猜测伪代码逻辑：
+我们泄露出了.got.plt的部分libc库函数，现在需要推测出它们具体是什么函数。
+#### 方式一
+由于题目没有提供二进制可执行文件，所以需要猜测伪代码逻辑：
 ![](/assets/img/247ctf/pwn/confused_environment_write/10.png)
 
 根据上述伪代码逻辑，做出以下尝试——修改0x0804a00c及其后地址的内容:
@@ -103,8 +105,9 @@ excerpt: 年轻人的第一次盲字符串格式化溢出
 
 程序在第二次循环打印完"What's your name again?"后崩溃退出，说明程序崩溃于伪代码逻辑第9行，进一步说明[0x0804a018]=some_input_func@libc。将几个常见的libc库输入函数结合printf一起放入[libc.blukat.me](https://libc.blukat.me/)进行查询，得到结果：
 ![](/assets/img/247ctf/pwn/confused_environment_write/18.png)
-
+#### 方式二
 上述思路纯靠猜测。还有一种找出.got.plt中具体libc库函数是什么的方法，即获取.rela.plt、.got.plt、.dynsym与.dynstr之间的关系，它们的关系如下：
+<span id="all_rela">关系图</span>
 ![](/assets/img/247ctf/pwn/confused_environment_write/s_7.png)
 
 .dynnamic包含此程序所有section信息，如果程序以0x08048000为基址，则.dynamic的地址很可能存储在0x080480bc。其数据结构中，d_tag表示此section类型，d_un被d_tag控制，如果时d_ptr，表示此section加载地址：
@@ -129,6 +132,14 @@ excerpt: 年轻人的第一次盲字符串格式化溢出
 	.dynstr address: 0x0804828c
 	.dynsym address: 0x080481cc
 	.rela.plt address: 0x0804837c
+
+根据[关系图](#all_rela)写脚本并泄露.got.plt布局：
+
+![](/assets/img/247ctf/pwn/confused_environment_write/s_14.png)
+
+![](/assets/img/247ctf/pwn/confused_environment_write/s_13.png)
+
+自此，得到.got.plt的函数布局。
 
 ### 断定2
 程序使用libc版本为libc6-i386_2.27-3ubuntu1_amd64.so。(遗留问题3)
