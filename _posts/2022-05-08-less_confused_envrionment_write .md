@@ -59,6 +59,7 @@ excerpt: 年轻人的第二次盲字符串格式化溢出
 修改malloc_hook需要知道libc加载地址，但是没有循环，没办法泄露信息。通过多次远程连接程序，发现libc基址虽然随机，但都是0xf7dXX000，即地址中只有一个字节随机。所以可以硬编码，有1/256的概率碰撞出正确的libc加载地址。（概率较"高"）
 
 getshell流程：
+
 	1）修改malloc_hook为main函数地址，并触发printf内部malloc；
 	2）(碰撞libc地址成功后)程序执行malloc，发现malloc_hook!=0，跳转执行main函数；
 	3）修改printf@.got.plt为system@libc，并触发printf内部malloc，跳转执行main函数；
