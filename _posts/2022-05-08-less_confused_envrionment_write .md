@@ -54,4 +54,18 @@ excerpt: 年轻人的第二次盲字符串格式化溢出
 
 第二种思路，通过[.dynamic](#dynamic_layout)中ELF Segment Types=0x1a找到.fini_array section的地址(0x08049f08)。[.fini_array保存了程序退出时要执行的函数](http://blog.k3170makan.com/2018/10/introduction-to-elf-format-part-v.html)，修改其中内容可以使程序再次执行main函数。经过多次尝试，发现无法修改0x08049f08上的内容，推测是程序开了partial relro的原因。
 
-第三种思路：根据[这里](https://github.com/Naetw/CTF-pwn-tips#use-printf-to-trigger-malloc-and-free)介绍，一次输入超过65536个字节到printf（32位）会执行printf内部的malloc。
+第三种思路：根据[介绍](https://github.com/Naetw/CTF-pwn-tips#use-printf-to-trigger-malloc-and-free)，一次输入超过65536个字节到printf（32位）会执行printf内部的malloc，只需要在格式化字符串加入"%65536$c"即可触发。
+
+修改malloc_hook需要知道libc加载地址，但是没有循环，没办法泄露信息。通过多次远程连接程序，发现libc基址虽然随机，但都是0xf7dXX000，即地址中只有一个字节随机。所以可以硬编码，有1/256的概率碰撞出正确的libc加载地址。（概率较"高"）
+
+getshell流程：
+	1）修改malloc_hook为main函数地址，并触发printf内部malloc；
+	2）(碰撞libc地址成功后)程序执行malloc，发现malloc_hook!=0，跳转执行main函数；
+	3）修改printf@.got.plt为system@libc，并触发printf内部malloc，跳转执行main函数；
+	4）输入"/bin/sh"，getshell；
+
+## getshell
+
+![](/assets/img/247ctf/pwn/less_confused_environment_write/6.png)
+
+![](/assets/img/247ctf/pwn/less_confused_environment_write/7.png)
