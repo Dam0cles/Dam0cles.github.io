@@ -5,6 +5,8 @@ tags: [pwn]
 excerpt: 年轻人的第一次盲栈溢出
 ---
 
+![](/assets/img/starCTF/blindpwn/memes.jpg)
+
 ## 信息收集
 程序提供了相关描述：
 
